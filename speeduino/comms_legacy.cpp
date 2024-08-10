@@ -622,7 +622,8 @@ void legacySerialHandler(byte cmd, Stream &targetPort, SerialStatus &targetStatu
       break;
 
     case 'Q': // send code version
-      targetPort.print(F("speeduino 202402"));
+      targetPort.print(F("speeduino 202402-RealDash"));
+      //targetPort.print(F("speeduino 202402"));
       //targetPort.print(F("speeduino 202310"));
       break;
 

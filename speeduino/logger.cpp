@@ -135,7 +135,8 @@ byte getTSLogEntry(uint16_t byteNum)
     case 85: statusValue = currentStatus.engineProtectStatus; break;
     case 86: statusValue = lowByte(currentStatus.fuelLoad); break;
     case 87: statusValue = highByte(currentStatus.fuelLoad); break;
-    case 88: statusValue = lowByte(currentStatus.ignLoad); break;
+    
+     case 88: statusValue = lowByte(currentStatus.ignLoad); break;
     case 89: statusValue = highByte(currentStatus.ignLoad); break;
     case 90: statusValue = lowByte(currentStatus.dwell); break;
     case 91: statusValue = highByte(currentStatus.dwell); break;

@@ -110,11 +110,17 @@ void loop(void)
       #if defined(secondarySerial_AVAILABLE)
         //if can or secondary serial interface is enabled then check for requests.
         if (configPage9.enable_secondarySerial == 1)  //secondary serial interface enabled
-        {
+        { 
+
           if ( ((mainLoopCount & 31) == 1) || (secondarySerial.available() > SERIAL_BUFFER_THRESHOLD) )
-          {
-            if (secondarySerial.available() > 0)  { secondserial_Command(); }
-          } 
+          { 
+            if (configPage9.secondarySerialProtocol == SECONDARY_SERIAL_REALDASHCAN) { 
+              sendRealDashCan(); 
+            } 
+            else if (secondarySerial.available() > 0)  { 
+              secondserial_Command(); 
+            }
+          }   
         }
       #endif
       #if defined (NATIVE_CAN_AVAILABLE)
