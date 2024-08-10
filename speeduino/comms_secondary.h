@@ -17,6 +17,6 @@ extern SECONDARY_SERIAL_T *pSecondarySerial;
 void secondserial_Command(void);//This is the heart of the Command Line Interpreter.  All that needed to be done was to make it human readable.
 void sendCancommand(uint8_t cmdtype , uint16_t canadddress, uint8_t candata1, uint8_t candata2, uint16_t sourcecanAddress);
 
-void sendRealDashCan(void);
+extern void sendRealDashCan();
 
 #endif // COMMS_SECONDARY_H
