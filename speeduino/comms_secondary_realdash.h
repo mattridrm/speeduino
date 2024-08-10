@@ -1,0 +1,6 @@
+#ifndef COMMS_SECONDARY_REALDASH_H
+#define COMMS_SECONDARY_REALDASH_H
+
+void sendRealDashCan(void);
+
+#endif // COMMS_SECONDARY_REALDASH_H 
