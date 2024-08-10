@@ -111,9 +111,10 @@ void loop(void)
         //if can or secondary serial interface is enabled then check for requests.
         if (configPage9.enable_secondarySerial == 1)  //secondary serial interface enabled
         { 
-
+         
           if ( ((mainLoopCount & 31) == 1) || (secondarySerial.available() > SERIAL_BUFFER_THRESHOLD) )
           { 
+            // add Real Dash Can Protocol
             if (configPage9.secondarySerialProtocol == SECONDARY_SERIAL_REALDASHCAN) { 
               sendRealDashCan(); 
             } 
