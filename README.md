@@ -11,9 +11,14 @@
 [![GitHub commits](https://img.shields.io/github/commits-since/noisymime/speeduino/202310.svg)](https://github.com/noisymime/speeduino/compare/202310...master)
 [![https://img.shields.io/discord/879495735912071269 ](https://img.shields.io/discord/879495735912071269?label=Discord&logo=Discord)](https://discord.gg/YWCEexaNDe)
 
+
 ##### A low cost, DIY friendly Engine Management System (ECU) based on the Arduino framework
 </div>
 
+## A fork of the Sppeduino project to include RealDash can Protocol over serial
+Please use the speeduino.ini and base tune file in the reference folder for the speeduino firmware. I modified the speeduino signature as to not impact other version of the firmware.
+
+In the RealDash folder is an XML file to use as a starting point for the values sent from the speeduino to RealDash. 
 
 ## Speeduino
 The Speeduino project is a flexible, fully featured Engine Management Systems (EMS aka ECU) based on the low cost and open source Arduino platform. It provides the hardware, firmware and software components that make up an engine management system, all provided under open licenses. With over 1000 installations, Speeduino has matured into a product that meets the needs of the hobbyist and enthusiast community without driving prices to the levels of traditional aftermarket ECUs.
