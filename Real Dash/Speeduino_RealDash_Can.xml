@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RealDashCAN version="2">
+  <frames baseId="0x410" endianess="little">
+    <frame id="0" >
+        <!-- Speeduino Values from getTSLogEntry 
+            counter that increments each second. Used to track unexpected resets. counts to 255 and restarts at 0
+            status1 Bitfield 
+                inj1Status(0), inj2Status(1), inj3Status(2), inj4Status(3), 
+                DFCOOn(4), boostCutFuel(5), toothLog1Ready(6), toothLog2Ready(7)
+            Engine Status Bitfield
+                running(0), crank(1), ase(2), warmup(3), 
+                tpsaccaen(4), tpsacden(5), mapaccaen(6), mapaccden(7)
+            syncLossCounter
+            lowByte(currentStatus.MAP)
+            highByte(currentStatus.MAP)
+            (currentStatus.IAT + CALIBRATION_TEMPERATURE_OFFSET)
+            (currentStatus.coolant + CALIBRATION_TEMPERATURE_OFFSET)
+        -->
+      <value targetId="33" offset="0" length="1"/>
+
+      <value name="Speeduino: Inj 1 Status" startbit="8" bitcount="1"/>
+      <value name="Speeduino: Inj 2 Status" startbit="9" bitcount="1"/>
+      <value name="Speeduino: Inj 3 Status" startbit="10" bitcount="1"/>
+      <value name="Speeduino: Inj 4 Status" startbit="11" bitcount="1"/>
+      <value targetId="406" startbit="12" bitcount="1"/>
+      <value name="Speeduino: Boost Cut Fuel" startbit="13" bitcount="1"/>
+      <value name="Speeduino: Tooth Log 1 Ready" startbit="14" bitcount="1"/>
+      <value name="Speeduino: Tooth Log 2 Ready" startbit="15" bitcount="1"/>
+
+      <value targetId="56" startbit="16" bitcount="1"/>
+      <value targetId="57" startbit="17" bitcount="1"/>
+      <value name="Speeduino: Status ASE" startbit="18" bitcount="1"/>
+      <value targetId="59" startbit="19" bitcount="1"/>
+      <value targetId="60" startbit="20" bitcount="1"/>
+      <value targetId="61" startbit="21" bitcount="1"/>
+      <value targetId="62" startbit="22" bitcount="1"/>
+      <value targetId="63" startbit="23" bitcount="1"/>
+
+      <value name="Speeduino: Sync Loss Counter" offset="3" length="1"/>
+      <value targetId="31" units="kPA" offset="4" length="2"/>
+      <value targetId="27" units="C" offset="6" length="1"/>
+      <value targetId="14" units="C" offset="7" length="1"/>
+    </frame>
+    
+    <frame id="1" >
+        <!--
+            Battery voltage correction (%)
+            Battery voltage
+            O2
+            Exhaust gas correction (%)
+            Air temperature Correction (%)
+            Warmup enrichment (%)
+            lowByte(currentStatus.RPM)
+            highByte(currentStatus.RPM)
+        -->
+        <value name="Speeduino: Battery Correction" units="%" offset="0" length="1"/>
+        <value targetId="12" offset="1" length="1"/>
+        <value targetId="0" offset="2" length="1"/>
+        <value targetId="17" units="%" offset="3" length="1"/>
+        <value name="Speeduino: Air temperature Correction" units="%" offset="4" length="1"/>
+        <value name="Speeduino: Warmup enrichment" units="%" offset="5" length="1"/>
+        <value targetId="37" offset="6" length="2"/>
+    </frame>
+
+    <frame id="2" >
+        <!--
+            lowByte(currentStatus.AEamount >> 1U); TPS acceleration enrichment (%) divided by 2 (Can exceed 255)
+            lowByte(currentStatus.corrections); Total GammaE (%)
+            highByte(currentStatus.corrections); Total GammaE (%)
+            VE 1 (%)
+            VE 2 (%)
+            AFR Target
+            lowByte(currentStatus.tpsDOT); //TPS DOT
+            highByte(currentStatus.tpsDOT); //TPS DOT
+        -->
+        <value targetId="4" units="%" offset="0" length="1"/>
+        <value name="Speeduino: Total GammaE" units="%" offset="1" length="2"/>
+        <value name="Speeduino: VE 1" units="%" offset="3" length="1"/>
+        <value name="Speeduino: VE 2" units="%" offset="4" length="1"/>
+        <value targetId="2" offset="5" length="1"/>
+        <value targetId="41" offset="6" length="2"/>
+    </frame>
+
+    <frame id="3" >
+        <!--
+            currentStatus.advance
+            TPS (0% to 100%)
+            lowByte(currentStatus.loopsPerSecond) 
+            highByte(currentStatus.loopsPerSecond)
+            lowByte(currentStatus.freeRAM)
+            highByte(currentStatus.freeRAM)
+            lowByte(currentStatus.boostTarget >> 1U); Divide boost target by 2 to fit in a byte
+            lowByte(div100(currentStatus.boostDuty)); 
+        -->
+        <value targetId="38" offset="0" length="1"/>
+        <value targetId="42" units="%" offset="1" length="1"/>
+        <value name="Speeduino: Main Loop Per Second" offset="2" length="2"/>
+        <value name="Speeduino: Free Memory" offset="4" length="2"/>
+        <value targetId="270" units="kPA" offset="6" length="1"/>
+        <value name="Speeduino: Boost Duty cycle" units="%" offset="7" length="1"/>             
+    </frame>
+
+    <frame id="4" >
+        <!--
+            Spark related bitfield
+                launchHard(0), launchSoft(1), hardLimitOn(2), softLimitOn(3) 
+                boostCutSpark(4), error(5), idleControlOn(6), sync(7)
+            //rpmDOT must be sent as a signed integer
+            lowByte(currentStatus.rpmDOT) 
+            highByte(currentStatus.rpmDOT) 
+            currentStatus.ethanolPct  //Flex sensor value (or 0 if not used)
+            currentStatus.flexCorrection  //Flex fuel correction (% above or below 100)
+            currentStatus.flexIgnCorrection  //Ignition correction (Increased degrees of advance) for flex fuel
+            currentStatus.idleLoad 
+            currentStatus.testOutputs 
+        -->
+        <value name="Speeduino: Spark Launch Hard" startbit="0" bitcount="1"/>
+        <value name="Speeduino: Spark Launch Soft" startbit="1" bitcount="1"/>
+        <value name="Speeduino: Spaerk Launch Hard Limit" startbit="2" bitcount="1"/>
+        <value name="Speeduino: Spark Launch Soft Limit" startbit="3" bitcount="1"/>
+        <value name="Speeduino: Spark Boost Cut" startbit="4" bitcount="1"/>
+        <value name="Speeduino: Spark Error" startbit="5" bitcount="1"/>
+        <value name="Speeduino: Spark Idle Control" startbit="6" bitcount="1"/>
+        <value name="Speeduino: Spark Sync" startbit="7" bitcount="1"/>
+
+        <value name="Speeduino: RPM DOT" signed = "true" offset="1" length="2"/>
+        <value name="Speeduino: Ethanol Pct" units="%" offset="3" length="1"/>
+        <value targetId="20" units="%" offset="4" length="1"/>
+        <value name="Speeduino: Ethanol Igniton Correction" offset="5" length="1"/>
+        <value name="Speeduino: Idle Load" offset="6" length="1"/>
+        <value name="Speeduino: Test Outputs" offset="7" length="1"/>
+    </frame>
+
+    <frame id="5" >
+        <!--
+            currentStatus.O2_2;  //O2
+            currentStatus.baro;  //Barometer value
+            lowByte(currentStatus.canin[0]); 
+            highByte(currentStatus.canin[0]); 
+            lowByte(currentStatus.canin[1]); 
+            highByte(currentStatus.canin[1]); 
+            lowByte(currentStatus.canin[2]); 
+            highByte(currentStatus.canin[2]);
+        -->
+        <value targetId="1" offset="0" length="1"/>
+        <value targetId="11" offset="1" length="1"/>
+        <value name="Speeduino: Can Lowbyte 0" offset="2" length="1"/>
+        <value name="Speeduino: Can Highbyte 0" offset="3" length="1"/>
+        <value name="Speeduino: Can Lowbyte 1" offset="4" length="1"/>
+        <value name="Speeduino: Can Highbyte 1" offset="5" length="1"/>
+        <value name="Speeduino: Can Lowbyte 2" offset="6" length="1"/>
+        <value name="Speeduino: Can Highbyte 2" offset="7" length="1"/>        
+    </frame>
+
+    <frame id="6" >        
+        <!--   
+            lowByte(currentStatus.canin[3]); 
+            highByte(currentStatus.canin[3]); 
+            lowByte(currentStatus.canin[4]); 
+            highByte(currentStatus.canin[4]); 
+            lowByte(currentStatus.canin[5]); 
+            highByte(currentStatus.canin[5]); 
+            lowByte(currentStatus.canin[6]); 
+            highByte(currentStatus.canin[6]); 
+        -->
+        <value name="Speeduino: Can Lowbyte 3" offset="0" length="1"/>
+        <value name="Speeduino: Can Highbyte 3" offset="1" length="1"/>
+        <value name="Speeduino: Can Lowbyte 4" offset="2" length="1"/>
+        <value name="Speeduino: Can Highbyte 4" offset="3" length="1"/>
+        <value name="Speeduino: Can Lowbyte 5" offset="4" length="1"/>
+        <value name="Speeduino: Can Highbyte 5" offset="5" length="1"/>
+        <value name="Speeduino: Can Lowbyte 6" offset="6" length="1"/>
+        <value name="Speeduino: Can Highbyte 6" offset="7" length="1"/>        
+    </frame>
+
+    <frame id="7" >
+        <!--
+            lowByte(currentStatus.canin[7]); 
+            highByte(currentStatus.canin[7]); 
+            lowByte(currentStatus.canin[8]); 
+            highByte(currentStatus.canin[8]); 
+            lowByte(currentStatus.canin[9]); 
+            highByte(currentStatus.canin[9]); 
+            lowByte(currentStatus.canin[10]); 
+            highByte(currentStatus.canin[10]); 
+        -->
+        <value name="Speeduino: Can Lowbyte 7" offset="0" length="1"/>
+        <value name="Speeduino: Can Highbyte 7" offset="1" length="1"/>
+        <value name="Speeduino: Can Lowbyte 8" offset="2" length="1"/>
+        <value name="Speeduino: Can Highbyte 8" offset="3" length="1"/>
+        <value name="Speeduino: Can Lowbyte 9" offset="4" length="1"/>
+        <value name="Speeduino: Can Highbyte 9" offset="5" length="1"/>
+        <value name="Speeduino: Can Lowbyte 10" offset="6" length="1"/>
+        <value name="Speeduino: Can Highbyte 10" offset="7" length="1"/> 
+    </frame>
+
+    <frame id="8" >
+        <!--
+            lowByte(currentStatus.canin[11]); 
+            highByte(currentStatus.canin[11]); 
+            lowByte(currentStatus.canin[12]); 
+            highByte(currentStatus.canin[12]); 
+            lowByte(currentStatus.canin[13]); 
+            highByte(currentStatus.canin[13]); 
+            lowByte(currentStatus.canin[14]); 
+            highByte(currentStatus.canin[14]); 
+        -->
+        <value name="Speeduino: Can Lowbyte 11" offset="0" length="1"/>
+        <value name="Speeduino: Can Highbyte 11" offset="1" length="1"/>
+        <value name="Speeduino: Can Lowbyte 12" offset="2" length="1"/>
+        <value name="Speeduino: Can Highbyte 12" offset="3" length="1"/>
+        <value name="Speeduino: Can Lowbyte 13" offset="4" length="1"/>
+        <value name="Speeduino: Can Highbyte 13" offset="5" length="1"/>
+        <value name="Speeduino: Can Lowbyte 14" offset="6" length="1"/>
+        <value name="Speeduino: Can Highbyte 14" offset="7" length="1"/> 
+    </frame>
+
+    <frame id="9" >
+        <!--
+            lowByte(currentStatus.canin[15]); 
+            highByte(currentStatus.canin[15]); 
+            currentStatus.tpsADC; 
+            getNextError(); //bitfeild
+                errorNum (0:1), 
+                currentError(2:7), 
+            lowByte(currentStatus.PW1);  //Pulsewidth 1 multiplied by 10 in ms. Have to convert from uS to mS.
+            highByte(currentStatus.PW1);  //Pulsewidth 1 multiplied by 10 in ms. Have to convert from uS to mS.
+            lowByte(currentStatus.PW2);  //Pulsewidth 2 multiplied by 10 in ms. Have to convert from uS to mS.
+            highByte(currentStatus.PW2);  //Pulsewidth 2 multiplied by 10 in ms. Have to convert from uS to mS.
+        -->
+        <value name="Speeduino: Can Lowbyte 15" offset="0" length="1"/>
+        <value name="Speeduino: Can Highbyte 15" offset="1" length="1"/>
+        <value name="Speeduino: TPS ADC" offset="2" length="1"/>
+
+        <value name="Speeduino: Error bitfield" offset="3" length="1"/>
+
+        <value name="Speeduino: INJ 1 PW" offset="4" length="2"/>
+        <value name="Speeduino: INJ 2 PW" offset="6" length="2"/>     
+    </frame>
+
+    <frame id="10" >
+        <!--
+            lowByte(currentStatus.PW3);  //Pulsewidth 3 multiplied by 10 in ms. Have to convert from uS to mS.
+            highByte(currentStatus.PW3);  //Pulsewidth 3 multiplied by 10 in ms. Have to convert from uS to mS.
+            lowByte(currentStatus.PW4);  //Pulsewidth 4 multiplied by 10 in ms. Have to convert from uS to mS.
+            highByte(currentStatus.PW4);  //Pulsewidth 4 multiplied by 10 in ms. Have to convert from uS to mS.
+            currentStatus.status3; //bitfield   
+                RESET_PREVENT(0), NITROUS(1), FUEL2_ACTIVE(2), VSS_REFRESH(3)
+                HALFSYNC(4), NSQUIRTS1(5), NSQUIRTS2(6), NSQUIRTS3(7)
+            currentStatus.engineProtectStatus; //bitfield
+                RPM(0), MAP(1), OIL(2), AFR(3), COOLANT(4)
+            lowByte(currentStatus.fuelLoad); 
+            highByte(currentStatus.fuelLoad); 
+        -->
+        <value name="Speeduino: INJ 3 PW" offset="0" length="2"/>
+        <value name="Speeduino: INJ 4 PW" offset="2" length="2"/>
+        <value name="Speeduino: Status 3" offset="4" length="1"/>
+
+        <value name="Speeduino: Status3 Reset Prevent" startbit="40" bitcount="1"/>
+        <value name="Speeduino: Status3 Nitrous" startbit="41" bitcount="1"/>
+        <value name="Speeduino: Status3 Fuel2 Active" startbit="42" bitcount="1"/>
+        <value name="Speeduino: Status3 VSS Refresh" startbit="43" bitcount="1"/>
+        <value name="Speeduino: Status3 Halfsync" startbit="44" bitcount="1"/>
+        <value name="Speeduino: Status3 NSquirts 1" startbit="45" bitcount="1"/>
+        <value name="Speeduino: Status3 NSquirts 2" startbit="46" bitcount="1"/>
+        <value name="Speeduino: Status3 NSquirts 3" startbit="47" bitcount="1"/>
+
+        <value name="Speeduino: Launch Hard" startbit="48" bitcount="1"/>
+        <value name="Speeduino: Launch Soft" startbit="49" bitcount="1"/>
+        <value name="Speeduino: Launch Hard Limit " startbit="50" bitcount="1"/>
+        <value name="Speeduino: Launch Soft Limit" startbit="51" bitcount="1"/>
+        <value name="Speeduino: Boost Cut Spark" startbit="52" bitcount="1"/>
+
+        <value name="Speeduino: Engine Protect Status" offset="5" length="1"/>
+        <value name="Speeduino: Engine Fuel Load" offset="6" length="2"/>
+    </frame>
+
+    <frame id="11" >
+        <!---
+            lowByte(currentStatus.ignLoad); break;
+            highByte(currentStatus.ignLoad); break;
+            lowByte(currentStatus.dwell); break;
+            highByte(currentStatus.dwell); break;
+            currentStatus.CLIdleTarget; break; The target idle RPM (when closed loop idle control is active)
+            lowByte(currentStatus.mapDOT); break;
+            highByte(currentStatus.mapDOT); break;
+            lowByte(currentStatus.vvt1Angle); break; //2 bytes for vvt1Angle
+        -->
+        <value name="Speeduino: Ignition Load" offset="0" length="2"/>
+        <value name="Speeduino: Target Dwell" offset="2" length="2"/>
+        <value name="Speeduino: Target Idle RPM Closed Loop byte" offset="4" length="1"/>
+        <value targetId="32" offset="5" length="2"/>
+        <value name="Speeduino: VVT1 Angle LB" offset="6" length="1"/>                                                      
+    </frame>
+
+    <frame id="12" >
+        <!--    
+            highByte(currentStatus.vvt1Angle); break;
+            currentStatus.vvt1TargetAngle; break;
+            lowByte(currentStatus.vvt1Duty); break;
+            lowByte(currentStatus.flexBoostCorrection); break;
+            highByte(currentStatus.flexBoostCorrection); break;
+            currentStatus.baroCorrection; break;
+            currentStatus.VE; break; //Current VE (%). Can be equal to VE1 or VE2 or a calculated value from both of them
+            currentStatus.ASEValue; break; //Current ASE (%)
+        -->
+        <value name="Speeduino: VVT1 Angle" offset="0" length="1" conversion="'Speeduino: VVT1 Angle LB' + V"/>
+        <value name="Speeduino: VVT1 Target Angle" offset="1" length="1"/>
+        <value name="Speeduino: VVT1 Duty Cycle" offset="2" length="1"/>
+        <value name="Speeduino: Flex Fuel Boost Correction" offset="3" length="2"/>
+        <value targetId="10" offset="5" length="1"/>
+        <value name="Speeduino: Current VE " units="%" offset="6" length="1"/>
+        <value name="Speeduino: Current ASE" units="%" offset="7" length="1"/>  
+    </frame>
+
+    <frame id="13" >
+        <!--
+            lowByte(currentStatus.vss); break;
+            highByte(currentStatus.vss); break;
+            currentStatus.gear; break;
+            currentStatus.fuelPressure; break;
+            currentStatus.oilPressure; break;
+            currentStatus.wmiPW; break;
+            currentStatus.status4; break; // bitfield
+                WMI_EMPTY     0 //Indicates whether the WMI tank is empty
+                VVT1_ERROR    1 //VVT1 cam angle within limits or not
+                VVT2_ERROR    2 //VVT2 cam angle within limits or not
+                FAN           3 //Fan Status
+                BURNPENDING   4
+                STAGING_ACTIVE 5
+                COMMS_COMPAT  6
+                ALLOW_LEGACY_COMMS  7
+            lowByte(currentStatus.vvt2Angle); break; //2 bytes for vvt2Angle
+        -->
+        <value targetId="81" units="kph" offset="0" length="2"/>
+        <value targetId="140" offset="2" length="1"/>
+        <value targetId="202" units="bar" offset="3" length="1"/>
+        <value targetId="151" units="bar" offset="4" length="1"/>
+        <value name="Speeduino: WMI Duty Cycle" units="%" offset="5" length="1"/>
+        
+        <value name="Speeduino: Status4 WMI Empty" startbit="48" bitcount="1"/>
+        <value name="Speeduino: Status4 VVT1 Error" startbit="49" bitcount="1"/>
+        <value name="Speeduino: Status4 VVT2 Error" startbit="50" bitcount="1"/>
+        <value name="Speeduino: Status4 Fan" startbit="51" bitcount="1"/>
+        <value name="Speeduino: Status4 Burn Pending" startbit="52" bitcount="1"/>
+        <value name="Speeduino: Status4 Staging Active" startbit="53" bitcount="1"/>
+        <value name="Speeduino: Status4 Comms Compat" startbit="54" bitcount="1"/>
+        <value name="Speeduino: Status4 Allow Legacy Comms" startbit="55" bitcount="1"/>
+
+        <value name="Speeduino: VVT2 Angle LB" offset="7" length="1"/> 
+    </frame>
+
+    <frame id="14" >
+        <!--
+            highByte(currentStatus.vvt2Angle); break;
+            currentStatus.vvt2TargetAngle; break;
+            lowByte(currentStatus.vvt2Duty); break;
+            currentStatus.outputsStatus; break;
+            lowByte(currentStatus.fuelTemp + CALIBRATION_TEMPERATURE_OFFSET); break; //Fuel temperature from flex sensor
+            currentStatus.fuelTempCorrection; break; //Fuel temperature Correction (%)
+            currentStatus.advance1; break; //advance 1 (%)
+            currentStatus.advance2; break; //advance 2 (%)
+        -->
+        <value name="Speeduino: VVT2 Angle" offset="0" length="1" conversion="'Speeduino: VVT2 Angle LB' + V"/>
+        <value name="Speeduino: VVT2 Target Angle" offset="1" length="1"/>
+        <value name="Speeduino: VVT2 Duty Cycle" units="%" offset="2" length="1"/>
+        <value targetId="" offset="3" length="1"/>
+        <value targetId="" offset="4" length="1"/>
+        <value targetId="" offset="5" length="1"/>
+        <value targetId="" offset="6" length="1"/>
+        <value targetId="" offset="7" length="1"/>  
+    </frame>
+
+    <frame id="15" >    
+        <!--
+            currentStatus.TS_SD_Status; break; //SD card status
+            lowByte(currentStatus.EMAP); break; //2 bytes for EMAP
+            highByte(currentStatus.EMAP); break;
+            currentStatus.fanDuty; break;
+            currentStatus.airConStatus; break;
+            lowByte(currentStatus.actualDwell); break;
+            highByte(currentStatus.actualDwell); break;
+        -->
+        <value name="Speeduino: TS SD Status" offset="0" length="1"/>
+        <value name="Speeduino: EMAP Sensor Value" offset="1" length="2"/>
+        <value name="Speeduino: Fan Duty Cycle" offset="3" length="1"/>
+        <value name="Speeduino: Aircon Status" offset="4" length="1"/>
+        <value targetId="26" offset="5" length="2"/>         
+    </frame>
+  </frames>
+</RealDashCAN>
