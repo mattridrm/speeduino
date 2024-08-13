@@ -29,6 +29,8 @@ sendcancommand is called when a command is to be sent either to serial3
 uint8_t currentSecondaryCommand;
 SECONDARY_SERIAL_T* pSecondarySerial;
 
+void sendRealDashCan();
+
 void secondserial_Command(void)
 {
   #if defined(secondarySerial_AVAILABLE)
@@ -221,4 +223,43 @@ void sendCancommand(uint8_t cmdtype, uint16_t canaddress, uint8_t candata1, uint
   UNUSED(candata2);
   UNUSED(sourcecanAddress);
 #endif
+}
+
+void secondarySerial_Cancommand(uint8_t cmdtype)
+{
+#if defined(secondarySerial_AVAILABLE)
+    switch (cmdtype)
+    {
+      case 0: 
+        sendRealDashCan();
+        break;  
+      
+      default:
+        break;
+    }
+#endif
+}
+
+
+void sendRealDashCan()
+{ 
+  static uint8_t canFrame = 0;
+  const byte realdashHeader[4] = { 0x44, 0x33, 0x22, 0x11 };
+  static uint32_t realdashBaseId = (uint32_t) (configPage9.realtime_base_address + 0x0100);
+
+  if (canFrame < LOG_ENTRY_SIZE)
+  {   
+    secondarySerial.write(realdashHeader, 4);  //tscanid of speeduino device
+    secondarySerial.write( (const byte*) &realdashBaseId, 4);
+    sendValues(canFrame, 8, 0xFF, secondarySerial, serialSecondaryStatusFlag);
+    canFrame += 8;
+    realdashBaseId ++;
+  } 
+  if (canFrame >= LOG_ENTRY_SIZE)
+    {
+      canFrame = 0;
+      realdashBaseId = (uint32_t)(configPage9.realtime_base_address + 0x0100);
+      return;
+  }
+
 }
