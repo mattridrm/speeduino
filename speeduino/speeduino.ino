@@ -113,7 +113,7 @@ void loop(void)
         {
           if ( ((mainLoopCount & 31) == 1) || (secondarySerial.available() > SERIAL_BUFFER_THRESHOLD) )
           {
-            if(configPage9.secondarySerialProtocol == 5){ secondarySerial_Cancommand(0); };
+            if(configPage9.secondarySerialProtocol == SECONDARY_SERIAL_PROTO_REALDASH_SERIAL_CAN){ secondarySerial_Cancommand(0); };
             if (secondarySerial.available() > 0)  { secondserial_Command(); }
           } 
         }
