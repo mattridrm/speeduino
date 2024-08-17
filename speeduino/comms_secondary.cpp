@@ -240,7 +240,6 @@ void secondarySerial_Cancommand(uint8_t cmdtype)
 #endif
 }
 
-
 void sendRealDashCan()
 { 
   static uint8_t canFrame = 0;
@@ -261,5 +260,4 @@ void sendRealDashCan()
       realdashBaseId = (uint32_t)(configPage9.realtime_base_address + 0x0100);
       return;
   }
-
 }
