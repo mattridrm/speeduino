@@ -1052,12 +1052,20 @@ void wmiControl(void)
           wmiPW = map(currentStatus.MAP/2, configPage10.wmiMAP, configPage10.wmiMAP2, 0, 200);
           break;
         case WMI_MODE_OPENLOOP:
+          if (configPage9.extended_wmi == 1){
+            wmiPW = get3DTableValue(&fuelTable2, currentStatus.MAP, currentStatus.RPM);
+          }else{
           //  Mapped open loop - Output PWM follows 2D map value (RPM vs MAP) Cell value contains desired PWM% [range 0-100%]
-          wmiPW = get3DTableValue(&wmiTable, currentStatus.MAP, currentStatus.RPM);
+            wmiPW = get3DTableValue(&wmiTable, currentStatus.MAP, currentStatus.RPM);
+          }
           break;
         case WMI_MODE_CLOSEDLOOP:
+          if (configPage9.extended_wmi == 1){
+            wmiPW = max(0, ((int)currentStatus.PW1 + configPage10.wmiOffset)) * get3DTableValue(&fuelTable2, currentStatus.MAP, currentStatus.RPM) / 200;    
+          }else{
           // Mapped closed loop - Output PWM follows injector duty cycle with 2D correction map applied (RPM vs MAP). Cell value contains correction value% [nom 100%] 
-          wmiPW = max(0, ((int)currentStatus.PW1 + configPage10.wmiOffset)) * get3DTableValue(&wmiTable, currentStatus.MAP, currentStatus.RPM) / 200;
+            wmiPW = max(0, ((int)currentStatus.PW1 + configPage10.wmiOffset)) * get3DTableValue(&wmiTable, currentStatus.MAP, currentStatus.RPM) / 200;
+          }
           break;
         default:
           // Wrong mode

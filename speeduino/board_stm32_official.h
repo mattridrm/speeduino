@@ -43,7 +43,7 @@
 
 //Select one for EEPROM,the default is EEPROM emulation on internal flash.
 //#define SRAM_AS_EEPROM /*Use 4K battery backed SRAM, requires a 3V continuous source (like battery) connected to Vbat pin */
-//#define USE_SPI_EEPROM PB0 /*Use M25Qxx SPI flash on BlackF407VE*/
+//#define USE_SPI_EEPROM PE1 /*Use M25Qxx SPI flash on BlackF407VE*/
 //#define FRAM_AS_EEPROM /*Use FRAM like FM25xxx, MB85RSxxx or any SPI compatible */
 
 #ifndef word
@@ -85,7 +85,7 @@ inline uint32_t  digitalPinToInterrupt(uint32_t Interrupt_pin) { return Interrup
 
 #if defined(STM32F407xx)
   //Comment out this to disable SD logging for STM32 if needed. Currently SD logging for STM32 is experimental feature for F407.
-  #define SD_LOGGING
+  //#define SD_LOGGING
 #endif
 
 #if defined(SD_LOGGING)

@@ -1083,6 +1083,7 @@ struct config9 {
   byte enable_intcan:1;
   byte secondarySerialProtocol:4;            //protocol for secondary serial. 0=Generic (Fixed list), 1=Generic (ini based list), 2=CAN, 3=msDroid, 4=Real Dash
   byte unused9_0:1;
+ 
 
   byte caninput_sel[16];                    //bit status on/Can/analog_local/digtal_local if input is enabled
   uint16_t caninput_source_can_address[16];        //u16 [15] array holding can address of input
@@ -1092,15 +1093,17 @@ struct config9 {
   byte caninputEndianess:1;
   //byte unused:2
   //...
-  byte unused10_68;
+  //byte unused10_68;
+  byte enable_bmwE70Can:1;
   byte enable_candata_out : 1;
   byte canoutput_sel[8];
   uint16_t canoutput_param_group[8];
   uint8_t canoutput_param_start_byte[8];
   byte canoutput_param_num_bytes[8];
 
-  byte unused10_110;
-  byte unused10_111;
+  //byte unused10_110;
+  //byte unused10_111;
+  uint16_t realdash_canid;
   byte egoMAPMax; //needs to be multiplied by 2 to get the proper value
   byte egoMAPMin; //needs to be multiplied by 2 to get the proper value
   byte speeduino_tsCanId:4;         //speeduino TS canid (0-14)
@@ -1138,8 +1141,9 @@ struct config9 {
   byte dfcoTaperAdvance;
   byte dfcoTaperEnable : 1;
   byte unused10_183 : 6;
-
-  byte unused10_184;
+  //byte unused10_184;
+  
+  byte extended_wmi : 1;
 
   byte afrProtectEnabled : 2; /* < AFR protection enabled status. 0 = disabled, 1 = fixed mode, 2 = table mode */
   byte afrProtectMinMAP; /* < Minimum MAP. Stored value is divided by 2. Increments of 2 kPa, maximum 511 (?) kPa */

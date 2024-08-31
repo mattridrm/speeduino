@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "scheduledIO.h"
 #include "secondaryTables.h"
 #include "comms_CAN.h"
+#include "comms_bmwE70_CAN.h"
 #include "SD_logger.h"
 #include "schedule_calcs.h"
 #include "auxiliaries.h"
@@ -113,9 +114,11 @@ void loop(void)
         {
           if ( ((mainLoopCount & 31) == 1) || (secondarySerial.available() > SERIAL_BUFFER_THRESHOLD) )
           {
-            if(configPage9.secondarySerialProtocol == SECONDARY_SERIAL_PROTO_REALDASH_SERIAL_CAN){ secondarySerial_Cancommand(0); };
+            
             if (secondarySerial.available() > 0)  { secondserial_Command(); }
           } 
+          
+          if(configPage9.secondarySerialProtocol == 5){ secondarySerial_Cancommand(0); };
         }
       #endif
       #if defined (NATIVE_CAN_AVAILABLE)
@@ -128,6 +131,14 @@ void loop(void)
             can_Command();
             readAuxCanBus();
             if (configPage2.canWBO > 0) { receiveCANwbo(); }
+          }
+        }
+
+        if (configPage9.enable_bmwE70Can == 1)
+        {
+          while (CAN_read1())
+          {
+            readBmwE70Can();
           }
         }   
       #endif

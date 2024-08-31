@@ -244,7 +244,7 @@ void sendRealDashCan()
 { 
   static uint8_t canFrame = 0;
   const byte realdashHeader[4] = { 0x44, 0x33, 0x22, 0x11 };
-  static uint32_t realdashBaseId = (uint32_t) (configPage9.realtime_base_address + 0x0100);
+  static uint32_t realdashBaseId =  (uint32_t)(configPage9.realdash_canid + 0x100);
 
   if (canFrame < LOG_ENTRY_SIZE)
   {   
@@ -257,7 +257,7 @@ void sendRealDashCan()
   if (canFrame >= LOG_ENTRY_SIZE)
     {
       canFrame = 0;
-      realdashBaseId = (uint32_t)(configPage9.realtime_base_address + 0x0100);
+      realdashBaseId = (uint32_t)(configPage9.realdash_canid + 0x100);
       return;
   }
 }

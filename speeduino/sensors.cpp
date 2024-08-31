@@ -19,6 +19,9 @@ A full copy of the license may be found in the projects root directory
 #include "decoders.h"
 #include "auxiliaries.h"
 #include "utilities.h"
+#ifdef NATIVE_CAN_AVAILABLE
+#include "comms_bmwE70_CAN.h"
+#endif
 #include BOARD_H
 
 uint32_t MAPcurRev; //Tracks which revolution we're sampling on
@@ -469,77 +472,95 @@ void readMAP(void)
 
 void readTPS(bool useFilter)
 {
-  currentStatus.TPSlast = currentStatus.TPS;
-  #if defined(ANALOG_ISR)
-    byte tempTPS = fastMap1023toX(AnChannel[pinTPS-A0], 255); //Get the current raw TPS ADC value and map it into a byte
-  #else
-    analogRead(pinTPS);
-    byte tempTPS = fastMap1023toX(analogRead(pinTPS), 255); //Get the current raw TPS ADC value and map it into a byte
-  #endif
-  //The use of the filter can be overridden if required. This is used on startup to disable priming pulse if flood clear is wanted
-  if(useFilter == true) { currentStatus.tpsADC = ADC_FILTER(tempTPS, configPage4.ADCFILTER_TPS, currentStatus.tpsADC); }
-  else { currentStatus.tpsADC = tempTPS; }
-  byte tempADC = currentStatus.tpsADC; //The tempADC value is used in order to allow TunerStudio to recover and redo the TPS calibration if this somehow gets corrupted
-
-  if(configPage2.tpsMax > configPage2.tpsMin)
-  {
-    //Check that the ADC values fall within the min and max ranges (Should always be the case, but noise can cause these to fluctuate outside the defined range).
-    if (currentStatus.tpsADC < configPage2.tpsMin) { tempADC = configPage2.tpsMin; }
-    else if(currentStatus.tpsADC > configPage2.tpsMax) { tempADC = configPage2.tpsMax; }
-    currentStatus.TPS = map(tempADC, configPage2.tpsMin, configPage2.tpsMax, 0, 200); //Take the raw TPS ADC value and convert it into a TPS% based on the calibrated values
+  if (configPage9.enable_bmwE70Can == 1){
+    currentStatus.TPS = bmwE70CanValues.tps;
   }
   else
   {
-    //This case occurs when the TPS +5v and gnd are wired backwards, but the user wishes to retain this configuration.
-    //In such a case, tpsMin will be greater then tpsMax and hence checks and mapping needs to be reversed
+    currentStatus.TPSlast = currentStatus.TPS;
+    #if defined(ANALOG_ISR)
+      byte tempTPS = fastMap1023toX(AnChannel[pinTPS-A0], 255); //Get the current raw TPS ADC value and map it into a byte
+    #else
+      analogRead(pinTPS);
+      byte tempTPS = fastMap1023toX(analogRead(pinTPS), 255); //Get the current raw TPS ADC value and map it into a byte
+    #endif
+    //The use of the filter can be overridden if required. This is used on startup to disable priming pulse if flood clear is wanted
+    if(useFilter == true) { currentStatus.tpsADC = ADC_FILTER(tempTPS, configPage4.ADCFILTER_TPS, currentStatus.tpsADC); }
+    else { currentStatus.tpsADC = tempTPS; }
+    byte tempADC = currentStatus.tpsADC; //The tempADC value is used in order to allow TunerStudio to recover and redo the TPS calibration if this somehow gets corrupted
 
-    tempADC = 255 - currentStatus.tpsADC; //Reverse the ADC values
-    uint16_t tempTPSMax = 255 - configPage2.tpsMax;
-    uint16_t tempTPSMin = 255 - configPage2.tpsMin;
+    if(configPage2.tpsMax > configPage2.tpsMin)
+    {
+      //Check that the ADC values fall within the min and max ranges (Should always be the case, but noise can cause these to fluctuate outside the defined range).
+      if (currentStatus.tpsADC < configPage2.tpsMin) { tempADC = configPage2.tpsMin; }
+      else if(currentStatus.tpsADC > configPage2.tpsMax) { tempADC = configPage2.tpsMax; }
+      currentStatus.TPS = map(tempADC, configPage2.tpsMin, configPage2.tpsMax, 0, 200); //Take the raw TPS ADC value and convert it into a TPS% based on the calibrated values
+    }
+    else
+    {
+      //This case occurs when the TPS +5v and gnd are wired backwards, but the user wishes to retain this configuration.
+      //In such a case, tpsMin will be greater then tpsMax and hence checks and mapping needs to be reversed
 
-    //All checks below are reversed from the standard case above
-    if (tempADC > tempTPSMax) { tempADC = tempTPSMax; }
-    else if(tempADC < tempTPSMin) { tempADC = tempTPSMin; }
-    currentStatus.TPS = map(tempADC, tempTPSMin, tempTPSMax, 0, 200);
+      tempADC = 255 - currentStatus.tpsADC; //Reverse the ADC values
+      uint16_t tempTPSMax = 255 - configPage2.tpsMax;
+      uint16_t tempTPSMin = 255 - configPage2.tpsMin;
+
+      //All checks below are reversed from the standard case above
+      if (tempADC > tempTPSMax) { tempADC = tempTPSMax; }
+      else if(tempADC < tempTPSMin) { tempADC = tempTPSMin; }
+      currentStatus.TPS = map(tempADC, tempTPSMin, tempTPSMax, 0, 200);
+    }
+
+    //Check whether the closed throttle position sensor is active
+    if(configPage2.CTPSEnabled == true)
+    {
+      if(configPage2.CTPSPolarity == 0) { currentStatus.CTPSActive = !digitalRead(pinCTPS); } //Normal mode (ground switched)
+      else { currentStatus.CTPSActive = digitalRead(pinCTPS); } //Inverted mode (5v activates closed throttle position sensor)
+    }
+    else { currentStatus.CTPSActive = 0; }
   }
-
-  //Check whether the closed throttle position sensor is active
-  if(configPage2.CTPSEnabled == true)
-  {
-    if(configPage2.CTPSPolarity == 0) { currentStatus.CTPSActive = !digitalRead(pinCTPS); } //Normal mode (ground switched)
-    else { currentStatus.CTPSActive = digitalRead(pinCTPS); } //Inverted mode (5v activates closed throttle position sensor)
-  }
-  else { currentStatus.CTPSActive = 0; }
 }
 
 void readCLT(bool useFilter)
 {
-  unsigned int tempReading;
-  #if defined(ANALOG_ISR)
-    tempReading = AnChannel[pinCLT-A0]; //Get the current raw CLT value
-  #else
-    tempReading = analogRead(pinCLT);
-    tempReading = analogRead(pinCLT);
-    //tempReading = fastMap1023toX(analogRead(pinCLT), 511); //Get the current raw CLT value
-  #endif
-  //The use of the filter can be overridden if required. This is used on startup so there can be an immediately accurate coolant value for priming
-  if(useFilter == true) { currentStatus.cltADC = ADC_FILTER(tempReading, configPage4.ADCFILTER_CLT, currentStatus.cltADC); }
-  else { currentStatus.cltADC = tempReading; }
-  
-  currentStatus.coolant = table2D_getValue(&cltCalibrationTable, currentStatus.cltADC) - CALIBRATION_TEMPERATURE_OFFSET; //Temperature calibration values are stored as positive bytes. We subtract 40 from them to allow for negative temperatures
+  if (configPage9.enable_bmwE70Can == 1){
+    currentStatus.coolant = bmwE70CanValues.coolant_t;
+  }
+  else
+  {
+    unsigned int tempReading;
+    #if defined(ANALOG_ISR)
+      tempReading = AnChannel[pinCLT-A0]; //Get the current raw CLT value
+    #else
+      tempReading = analogRead(pinCLT);
+      tempReading = analogRead(pinCLT);
+      //tempReading = fastMap1023toX(analogRead(pinCLT), 511); //Get the current raw CLT value
+    #endif
+    //The use of the filter can be overridden if required. This is used on startup so there can be an immediately accurate coolant value for priming
+    if(useFilter == true) { currentStatus.cltADC = ADC_FILTER(tempReading, configPage4.ADCFILTER_CLT, currentStatus.cltADC); }
+    else { currentStatus.cltADC = tempReading; }
+    
+    currentStatus.coolant = table2D_getValue(&cltCalibrationTable, currentStatus.cltADC) - CALIBRATION_TEMPERATURE_OFFSET; //Temperature calibration values are stored as positive bytes. We subtract 40 from them to allow for negative temperatures
+  }
 }
 
 void readIAT(void)
 {
-  unsigned int tempReading;
-  #if defined(ANALOG_ISR)
-    tempReading = AnChannel[pinIAT-A0]; //Get the current raw IAT value
-  #else
-    tempReading = analogRead(pinIAT);
-    tempReading = analogRead(pinIAT);
-  #endif
-  currentStatus.iatADC = ADC_FILTER(tempReading, configPage4.ADCFILTER_IAT, currentStatus.iatADC);
-  currentStatus.IAT = table2D_getValue(&iatCalibrationTable, currentStatus.iatADC) - CALIBRATION_TEMPERATURE_OFFSET;
+  if (configPage9.enable_bmwE70Can == 1){
+    currentStatus.IAT = bmwE70CanValues.air_intake_t;
+  }
+  else
+  {
+    unsigned int tempReading;
+    #if defined(ANALOG_ISR)
+      tempReading = AnChannel[pinIAT-A0]; //Get the current raw IAT value
+    #else
+      tempReading = analogRead(pinIAT);
+      tempReading = analogRead(pinIAT);
+    #endif
+    currentStatus.iatADC = ADC_FILTER(tempReading, configPage4.ADCFILTER_IAT, currentStatus.iatADC);
+    currentStatus.IAT = table2D_getValue(&iatCalibrationTable, currentStatus.iatADC) - CALIBRATION_TEMPERATURE_OFFSET;
+  }
 }
 
 void readBaro(void)
